@@ -6,7 +6,6 @@ using ModKit.Interfaces;
 using ModKit.Internal;
 using ModKit.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using _menu = AAMenu.Menu;
@@ -30,7 +29,7 @@ namespace InteractionKit
             base.OnPluginInit();
             InitEntities();
             InsertMenu();
-            ModKit.Internal.Logger.LogSuccess($"{PluginInformations.SourceName} v{PluginInformations.Version}", "initialisé");
+            Logger.LogSuccess($"{PluginInformations.SourceName} v{PluginInformations.Version}", "initialisé");
         }
 
         public void InitEntities()
@@ -61,7 +60,7 @@ namespace InteractionKit
                 else player.Notify("Échec", "Aucun citoyen à proximité", NotificationManager.Type.Error);
             });
 
-            _menu.AddDocumentTabLine(PluginInformations, "Regarder votre permis", (ui) =>
+            _menu.AddDocumentTabLine(PluginInformations, "Regarder votre permis B", (ui) =>
             {
                 Player player = PanelHelper.ReturnPlayerFromPanel(ui);
                 if (player.character.PermisB) LookDrivingLicense(player);
@@ -327,25 +326,25 @@ namespace InteractionKit
                             await interactionCooldown.Save();
                             return true;
                         }
-                        else cooldown = currentTime - interactionCooldown.LastFrisked;
+                        else cooldown = currentTime - interactionCooldown.LastSteal;
                         break;
                     case nameof(InteractionKitCooldown.LastRestrain):
                         if ((currentTime - interactionCooldown.LastRestrain) > 60)
                         {
-                            interactionCooldown.LastSteal = (int)currentTime;
+                            interactionCooldown.LastRestrain = (int)currentTime;
                             await interactionCooldown.Save();
                             return true;
                         }
-                        else cooldown = currentTime - interactionCooldown.LastFrisked;
+                        else cooldown = currentTime - interactionCooldown.LastRestrain;
                         break;
                     case nameof(InteractionKitCooldown.LastKnockedOut):
                         if ((currentTime - interactionCooldown.LastKnockedOut) > 60)
                         {
-                            interactionCooldown.LastSteal = (int)currentTime;
+                            interactionCooldown.LastKnockedOut = (int)currentTime;
                             await interactionCooldown.Save();
                             return true;
                         }
-                        else cooldown = currentTime - interactionCooldown.LastFrisked;
+                        else cooldown = currentTime - interactionCooldown.LastKnockedOut;
                         break;
                     default:
                         Logger.LogError("UpdateCooldown", "L'interaction spécifiée n'est pas valide.");
