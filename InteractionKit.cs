@@ -1,4 +1,5 @@
 ﻿using Life;
+using Life.BizSystem;
 using Life.Network;
 using Life.UI;
 using ModKit.Helper;
@@ -175,20 +176,28 @@ namespace InteractionKit
             {
                 Player player = PanelHelper.ReturnPlayerFromPanel(ui);
 
-                var target = player.GetClosestPlayer();
-
-                if (target != null)
+                if (player.HasBiz())
                 {
-                    if(target.Health <= 0)
+                    Activity.Type playerBizType = Nova.biz.GetBizActivities(player.biz.Id).FirstOrDefault();
+                    if (playerBizType == Activity.Type.Medical)
                     {
-                        player.setup.TargetShowCenterText("Premiers secours", "Vous appliquez les gestes de premiers secours", 5);
-                        target.setup.TargetShowCenterText("Premiers secours", "Une personne à proximité applique les gestes de premiers secours", 5);
-                        await Task.Delay(5000);
-                        target.Health = 10;
+                        var target = player.GetClosestPlayer();
+
+                        if (target != null)
+                        {
+                            if (target.Health <= 0)
+                            {
+                                player.setup.TargetShowCenterText("Premiers secours", "Vous appliquez les gestes de premiers secours", 5);
+                                target.setup.TargetShowCenterText("Premiers secours", "Une personne à proximité applique les gestes de premiers secours", 5);
+                                await Task.Delay(5000);
+                                target.Health = 10;
+                            }
+                            else player.Notify("Échec", "Aucun citoyen inconscient à proximité", NotificationManager.Type.Error);
+                        }
+                        else player.Notify("Échec", "Aucun citoyen à proximité", NotificationManager.Type.Error);
                     }
-                    else player.Notify("Échec", "Aucun citoyen inconscient à proximité", NotificationManager.Type.Error);
-                }
-                else player.Notify("Échec", "Aucun citoyen à proximité", NotificationManager.Type.Error);
+                    else player.Notify("Échec", "Vous ne possédez pas la compétence \"Premiers secours\"", NotificationManager.Type.Error);
+                } else player.Notify("Échec", "Vous ne possédez pas la compétence \"Premiers secours\"", NotificationManager.Type.Error);
             });
         }
         #region PANELS
