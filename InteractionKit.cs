@@ -18,7 +18,6 @@ namespace InteractionKit
     {
         public static System.Random rand;
         
-
         public InteractionKit(IGameAPI api) : base(api)
         {
             PluginInformations = new PluginInformations(AssemblyHelper.GetName(), "1.0.0", "Aarnow");
@@ -92,8 +91,9 @@ namespace InteractionKit
                     {
                         if (target.Health <= 0)
                         {
-                            if (InventoryUtils.TargetOpenPlayerInventory(player, target)) target.Notify("Interaction", "Une personne vous fouille", NotificationManager.Type.Warning, 6);
-                            else player.Notify("Échec", "Nous n'avons pas pu accéder à l'inventaire de votre cible", NotificationManager.Type.Error);
+                            player.setup.TargetOpenPlayerInventory(target.netId);
+                            target.Notify("Interaction", "Une personne vous fouille", NotificationManager.Type.Warning, 6);
+                            player.Notify("Échec", "Nous n'avons pas pu accéder à l'inventaire de votre cible", NotificationManager.Type.Error);
                         }
                         else ToBeFrisked(target, player);
                     }
@@ -236,19 +236,14 @@ namespace InteractionKit
 
             panel.CloseButtonWithAction("Accepter", async () =>
             {
-                if(InventoryUtils.TargetOpenPlayerInventory(fromPlayer, toPlayer))
+                if (InventoryUtils.TargetOpenPlayerInventory(fromPlayer, toPlayer))
                 {
                     fromPlayer.Notify("Interaction", "Votre cible accepte d'être fouillé", NotificationManager.Type.Warning, 6);
                     toPlayer.Notify("Interaction", "Vous avez accepté d'être fouillé", NotificationManager.Type.Warning, 6);
                     return await Task.FromResult(true);
-                }
-                else
-                {
-                    fromPlayer.Notify("Erreur", "Nous n'avons pas pu accéder à l'inventaire du joueur ciblé", NotificationManager.Type.Error);
-                    toPlayer.Notify("Erreur", "Le joueur à proximité n'a pas pu accéder à votre inventaire", NotificationManager.Type.Error);
-                    return await Task.FromResult(true);
-                }
+                } else return await Task.FromResult(false);
             });
+
             panel.CloseButtonWithAction("Refuser", async () =>
             {
                 fromPlayer.Notify("Interaction", "Votre cible refuse d'être fouillé", NotificationManager.Type.Warning, 6);
