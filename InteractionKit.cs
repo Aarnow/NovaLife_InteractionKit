@@ -210,7 +210,7 @@ namespace InteractionKit
             panel.TextLines.Add($"{mk.Color("Date de naissance:", mk.Colors.Info)}  {player.character.Birthday}");
             panel.TextLines.Add($"{mk.Color("Points:", mk.Colors.Info)} {player.character.PermisPoints}/12");
 
-            panel.AddButton("Retour", ui => AAMenu.AAMenu.menu.DocumentPanel(player, AAMenu.AAMenu.menu.DocumentTabLines));
+            panel.AddButton("Retour", ui => AAMenu.AAMenu.menu.DocumentPanel(player));
             panel.CloseButton();
 
             panel.Display();
