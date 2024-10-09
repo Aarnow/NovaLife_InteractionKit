@@ -20,7 +20,7 @@ namespace InteractionKit
         
         public InteractionKit(IGameAPI api) : base(api)
         {
-            PluginInformations = new PluginInformations(AssemblyHelper.GetName(), "1.0.0", "Aarnow");
+            PluginInformations = new PluginInformations(AssemblyHelper.GetName(), "1.0.1", "Aarnow");
             rand = new System.Random();
         }
 
