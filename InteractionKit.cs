@@ -1,5 +1,4 @@
 ﻿using Life;
-using Life.BizSystem;
 using Life.Network;
 using Life.UI;
 using ModKit.Helper;
@@ -52,6 +51,7 @@ namespace InteractionKit
                 Player player = PanelHelper.ReturnPlayerFromPanel(ui);
 
                 var target = player.GetClosestPlayer();
+
                 if (target != null)
                 {
                     Character characterJson = player.GetCharacterJson();
@@ -72,8 +72,10 @@ namespace InteractionKit
                 Player player = PanelHelper.ReturnPlayerFromPanel(ui);
                 if (player.character.PermisB)
                 {
-                    var toPlayer = player.GetClosestPlayer();
-                    if (toPlayer != null) ShowDrivingLicense(toPlayer, player);
+
+                    var target = player.GetClosestPlayer();
+
+                    if (target != null) ShowDrivingLicense(target, player);
                     else player.Notify("Échec", "Aucun citoyen à proximité", NotificationManager.Type.Error);
                 }
                 else player.Notify("Échec", "Vous ne possedez pas le permis B", NotificationManager.Type.Error);
@@ -85,6 +87,7 @@ namespace InteractionKit
 
                 if (await UpdateCooldown(player, nameof(InteractionKitCooldown.LastFrisked)))
                 {
+
                     var target = player.GetClosestPlayer();
 
                     if (target != null)
@@ -161,45 +164,19 @@ namespace InteractionKit
 
                 if (await UpdateCooldown(player, nameof(InteractionKitCooldown.LastRestrain)))
                 {
+
                     var target = player.GetClosestPlayer();
 
                     if (target != null)
                     {
-                        ToBeRestrain(target, player);
+                        ToBeRestrain(player, target);
                     }
                     else player.Notify("Échec", "Aucun citoyen à proximité", NotificationManager.Type.Error);
                 }
                 
             });
-
-            _menu.AddInteractionTabLine(PluginInformations, "Premiers secours", async (ui) =>
-            {
-                Player player = PanelHelper.ReturnPlayerFromPanel(ui);
-
-                if (player.HasBiz())
-                {
-                    Activity.Type playerBizType = Nova.biz.GetBizActivities(player.biz.Id).FirstOrDefault();
-                    if (playerBizType == Activity.Type.Medical)
-                    {
-                        var target = player.GetClosestPlayer();
-
-                        if (target != null)
-                        {
-                            if (target.Health <= 0)
-                            {
-                                player.setup.TargetShowCenterText("Premiers secours", "Vous appliquez les gestes de premiers secours", 5);
-                                target.setup.TargetShowCenterText("Premiers secours", "Une personne à proximité applique les gestes de premiers secours", 5);
-                                await Task.Delay(5000);
-                                target.Health = 10;
-                            }
-                            else player.Notify("Échec", "Aucun citoyen inconscient à proximité", NotificationManager.Type.Error);
-                        }
-                        else player.Notify("Échec", "Aucun citoyen à proximité", NotificationManager.Type.Error);
-                    }
-                    else player.Notify("Échec", "Vous ne possédez pas la compétence \"Premiers secours\"", NotificationManager.Type.Error);
-                } else player.Notify("Échec", "Vous ne possédez pas la compétence \"Premiers secours\"", NotificationManager.Type.Error);
-            });
         }
+
         #region PANELS
         public void LookDrivingLicense(Player player)
         {
@@ -282,19 +259,19 @@ namespace InteractionKit
         }
         public void ToBeRestrain(Player toPlayer, Player fromPlayer)
         {
-            Panel panel = PanelHelper.Create($"Demande pour être {(toPlayer.setup.NetworkisRestrain ? "détaché" : "attaché")}", UIPanel.PanelType.Text, toPlayer, () => ToBeRestrain(toPlayer, fromPlayer));
+            Panel panel = PanelHelper.Create($"Demande pour être {(toPlayer.IsRestrain ? "détaché" : "attaché")}", UIPanel.PanelType.Text, toPlayer, () => ToBeRestrain(toPlayer, fromPlayer));
 
-            panel.TextLines.Add($"Une personne à proximité souhaite vous {(toPlayer.setup.NetworkisRestrain ? "détacher" : "attacher")}.");
+            panel.TextLines.Add($"Une personne à proximité souhaite vous {(toPlayer.IsRestrain ? "détacher" : "attacher")}.");
 
             panel.CloseButtonWithAction("Accepter", async () =>
             {
-                toPlayer.setup.NetworkisRestrain = !toPlayer.setup.NetworkisRestrain;
+                toPlayer.IsRestrain = !toPlayer.IsRestrain;
                 return await Task.FromResult(true);
             });
             panel.CloseButtonWithAction("Refuser", async () =>
             {
-                fromPlayer.Notify("Interaction", $"Votre cible refuse d'être {(toPlayer.setup.NetworkisRestrain ? "détaché" : "attaché")}", NotificationManager.Type.Warning, 6);
-                toPlayer.Notify("Interaction", $"Vous avez refusé d'être {(toPlayer.setup.NetworkisRestrain ? "détaché" : "attaché")}", NotificationManager.Type.Warning, 6);
+                fromPlayer.Notify("Interaction", $"Votre cible refuse d'être {(toPlayer.IsRestrain ? "détaché" : "attaché")}", NotificationManager.Type.Warning, 6);
+                toPlayer.Notify("Interaction", $"Vous avez refusé d'être {(toPlayer.IsRestrain ? "détaché" : "attaché")}", NotificationManager.Type.Warning, 6);
                 return await Task.FromResult(true);
             });
 
