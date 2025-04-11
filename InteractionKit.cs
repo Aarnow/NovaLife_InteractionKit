@@ -154,6 +154,7 @@ namespace InteractionKit
                     var target = player.GetClosestPlayer();
 
                     if (target != null) ToBeKnockedOut(target, player);
+                    else if (target.Health <= 0) { player.Notify("Échec", "La cible est morte"); }
                     else player.Notify("Échec", "Aucun citoyen à proximité", NotificationManager.Type.Error);
                 }
             });
