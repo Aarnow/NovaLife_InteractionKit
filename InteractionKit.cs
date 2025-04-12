@@ -153,7 +153,11 @@ namespace InteractionKit
                 {
                     var target = player.GetClosestPlayer();
 
-                    if (target != null) ToBeKnockedOut(target, player);
+                    if (target != null)
+                    {
+                        if (target.Health > 0) ToBeKnockedOut(target, player);
+                        else player.Notify("Échec", "Le citoyen est déjà dans le coma", NotificationManager.Type.Error);
+                    }
                     else player.Notify("Échec", "Aucun citoyen à proximité", NotificationManager.Type.Error);
                 }
             });
